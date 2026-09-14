@@ -1,17 +1,17 @@
 import os
 
 from dotenv import load_dotenv
-from groq import Groq
-from fastapi import FastAPI, Request, Form
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, Form, Request
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from groq import Groq
 
 load_dotenv()
 
 # CONSTANTS & VARIABLES
 API_KEY = os.getenv("GROQ_API_KEY")
 MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
-KNOWLEDGE_FILE = "sample_docs/knowledge.txt"
+KNOWLEDGE_FILE = "sample.docs/knowledge.txt"
 
 # FASTAPI APP
 app = FastAPI()
@@ -27,16 +27,10 @@ def basic_chat(question):
 
     response = client.chat.completions.create(
         messages=[
-            {
-                "role": "system",
-                "content": "You are a helpful assistant."
-            },
-            {
-                "role": "user",
-                "content": question
-            }
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": question},
         ],
-        model=MODEL
+        model=MODEL,
     )
 
     return response.choices[0].message.content
@@ -53,14 +47,14 @@ def rag_chat(question):
         messages=[
             {
                 "role": "system",
-                "content": "Answer using only the document below."
+                "content": "Answer using only the document below.",
             },
             {
                 "role": "user",
-                "content": f"Document:\n{document}\n\nQuestion: {question}"
-            }
+                "content": f"Document:\n{document}\n\nQuestion: {question}",
+            },
         ],
-        model=MODEL
+        model=MODEL,
     )
 
     return response.choices[0].message.content
@@ -68,40 +62,26 @@ def rag_chat(question):
 
 # HOME PAGE
 @app.get("/")
-def home(request: Request):
+def home(request: Request, mode: str = "basic"):
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={
-            "answer": None,
-            "question": "",
-            "mode": "basic"
-        }
+        context={"answer": None, "question": "", "mode": mode},
     )
 
 
 # CHAT ENDPOINT
 @app.post("/chat")
 def chat(
-    request: Request,
-    question: str = Form(...),
-    mode: str = Form(...)
+    request: Request, question: str = Form(...), mode: str = Form(...)
 ):
-    if mode == "basic":
-        answer = basic_chat(question)
-
-    elif mode == "rag":
+    if mode == "rag":
         answer = rag_chat(question)
-
     else:
-        answer = "Invalid chat mode."
+        answer = basic_chat(question)
 
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={
-            "answer": answer,
-            "question": question,
-            "mode": mode
-        }
+        context={"answer": answer, "question": question, "mode": mode},
     )

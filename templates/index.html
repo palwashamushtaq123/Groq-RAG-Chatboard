@@ -1,725 +1,246 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-```
-<title>RAG Chatboard</title>
-
-<link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
-```
-
+    <title>RAG Chatboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
 </head>
-
 <body>
 
 <div class="app">
 
-```
-<!-- =====================================================
-     SIDEBAR
-====================================================== -->
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
 
-<aside class="sidebar">
-
-
-    <!-- LOGO -->
-
-    <div class="logo">
-
-        <div class="logo-icon">
-            ✦
-        </div>
-
-        <div>
-            <h2>RAG Chatboard</h2>
-            <p>AI Knowledge Assistant</p>
-        </div>
-
-    </div>
-
-
-    <!-- CHAT MODES -->
-
-    <div class="sidebar-title">
-        CHAT MODES
-    </div>
-
-
-    <!-- BASIC CHAT -->
-
-    <a
-        href="/"
-        class="mode-card {% if mode != 'rag' %}active{% endif %}"
-    >
-
-        <div class="mode-icon basic-icon">
-            💬
-        </div>
-
-        <div>
-            <strong>Basic Chat</strong>
-            <span>General AI conversation</span>
-        </div>
-
-    </a>
-
-
-    <!-- RAG CHAT -->
-
-    <a
-        href="/?mode=rag"
-        class="mode-card {% if mode == 'rag' %}active{% endif %}"
-    >
-
-        <div class="mode-icon rag-icon">
-            📚
-        </div>
-
-        <div>
-            <strong>RAG Chat</strong>
-            <span>Ask from your knowledge base</span>
-        </div>
-
-    </a>
-
-
-    <!-- KNOWLEDGE BASE -->
-
-    <div class="knowledge-card">
-
-        <div class="book-icon">
-            📖
-        </div>
-
-        <div>
-
-            <strong>Knowledge Base</strong>
-
-            <span>
-                knowledge.txt
-            </span>
-
-            <small>
-                ● Connected
-            </small>
-
-        </div>
-
-    </div>
-
-
-    <!-- SIDEBAR BOTTOM -->
-
-    <div class="sidebar-bottom">
-
-        <div class="groq-logo">
-            ⚡
-        </div>
-
-        <div>
-
-            <span>
-                Powered by
-            </span>
-
-            <strong>
-                Groq
-            </strong>
-
-        </div>
-
-    </div>
-
-
-</aside>
-
-
-
-<!-- =====================================================
-     MAIN
-====================================================== -->
-
-<main class="main">
-
-
-    <!-- =================================================
-         HEADER
-    ================================================== -->
-
-    <header class="header">
-
-
-        <!-- HEADER LEFT -->
-
-        <div class="header-left">
-
-
-            <div class="online">
-
-                <span></span>
-
-                AI Assistant Online
-
+        <div class="logo">
+            <div class="logo-icon">✦</div>
+            <div>
+                <h2>RAG Chatboard</h2>
+                <p>AI Knowledge Assistant</p>
             </div>
-
-
-            <h1>
-
-                {% if mode == "rag" %}
-
-                    Knowledge Assistant
-
-                {% else %}
-
-                    AI Assistant
-
-                {% endif %}
-
-            </h1>
-
-
-            <p>
-
-                {% if mode == "rag" %}
-
-                    Ask questions and get answers from your knowledge base.
-
-                {% else %}
-
-                    Have a conversation with your AI assistant.
-
-                {% endif %}
-
-            </p>
-
-
         </div>
 
+        <div class="sidebar-title">CHAT MODES</div>
 
-
-        <!-- HEADER RIGHT -->
-
-        <div class="header-actions">
-
-
-            <!-- MODE -->
-
-            <div class="header-mode">
-
-                {% if mode == "rag" %}
-
-                    📚 RAG MODE
-
-                {% else %}
-
-                    💬 BASIC MODE
-
-                {% endif %}
-
+        <!-- BASIC CHAT -->
+        <a href="/?mode=basic" class="mode-card {% if mode != 'rag' %}active{% endif %}">
+            <div class="mode-icon basic-icon">💬</div>
+            <div>
+                <strong>Basic Chat</strong>
+                <span>General AI conversation</span>
             </div>
+        </a>
 
+        <!-- RAG CHAT -->
+        <a href="/?mode=rag" class="mode-card {% if mode == 'rag' %}active{% endif %}">
+            <div class="mode-icon rag-icon">📚</div>
+            <div>
+                <strong>RAG Chat</strong>
+                <span>Ask from your knowledge base</span>
+            </div>
+        </a>
 
-
-            <!-- CLEAR CHAT -->
-
-            <button
-                type="button"
-                class="clear-btn"
-                onclick="clearChat()"
-            >
-
-                🗑️ Clear Chat
-
-            </button>
-
-
+        <!-- KNOWLEDGE BASE -->
+        <div class="knowledge-card">
+            <div class="book-icon">📖</div>
+            <div>
+                <strong>Knowledge Base</strong>
+                <span>knowledge.txt</span>
+                <small>● Connected</small>
+            </div>
         </div>
 
-
-    </header>
-
-
-
-    <!-- =================================================
-         CHAT AREA
-    ================================================== -->
-
-    <section class="chat-area">
-
-
-        <!-- =================================================
-             WELCOME SCREEN
-        ================================================== -->
-
-        {% if not answer %}
-
-
-        <div class="welcome">
-
-
-            <div class="welcome-icon">
-                ✦
+        <!-- SIDEBAR BOTTOM -->
+        <div class="sidebar-bottom">
+            <div class="groq-logo">⚡</div>
+            <div>
+                <span>Powered by</span>
+                <strong>Groq</strong>
             </div>
-
-
-            <h2>
-
-                {% if mode == "rag" %}
-
-                    Ask Your Knowledge Base
-
-                {% else %}
-
-                    How can I help you?
-
-                {% endif %}
-
-            </h2>
-
-
-            <p>
-
-                {% if mode == "rag" %}
-
-                    Ask questions about the information stored in your knowledge base.
-
-                {% else %}
-
-                    Start a conversation with your AI assistant.
-
-                {% endif %}
-
-            </p>
-
-
-
-            <!-- SUGGESTIONS -->
-
-            <div class="suggestions">
-
-
-                <button
-                    type="button"
-                    onclick="setQuestion('What is this knowledge base about?')"
-                >
-
-                    📚 Explore knowledge
-
-                </button>
-
-
-                <button
-                    type="button"
-                    onclick="setQuestion('Summarize the information')"
-                >
-
-                    ✨ Summarize content
-
-                </button>
-
-
-                <button
-                    type="button"
-                    onclick="setQuestion('Explain this topic simply')"
-                >
-
-                    💡 Explain simply
-
-                </button>
-
-
-            </div>
-
-
         </div>
 
+    </aside>
 
-        {% endif %}
+    <!-- MAIN -->
+    <main class="main">
 
-
-
-        <!-- =================================================
-             CONVERSATION
-        ================================================== -->
-
-        {% if question and answer %}
-
-
-
-        <!-- =================================================
-             USER QUESTION
-        ================================================== -->
-
-        <div class="message user-message">
-
-
-            <div class="message-body">
-
-
-                <div class="sender user-sender">
-                    You
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-left">
+                <div class="online">
+                    <span></span> AI Assistant Online
                 </div>
-
-
-                <div class="user-bubble">
-
-                    {{ question }}
-
-                </div>
-
-
-            </div>
-
-
-            <div class="avatar user-avatar">
-
-                You
-
-            </div>
-
-
-        </div>
-
-
-
-        <!-- =================================================
-             AI RESPONSE
-        ================================================== -->
-
-        <div class="message ai-message">
-
-
-            <div class="avatar ai-avatar">
-
-                ✦
-
-            </div>
-
-
-            <div class="message-body">
-
-
-                <div class="sender">
-
+                <h1>
                     {% if mode == "rag" %}
-
-                        RAG Assistant
-
+                        Knowledge Assistant
                     {% else %}
-
                         AI Assistant
-
                     {% endif %}
-
-
-                    <span class="badge">
-                        AI
-                    </span>
-
-                </div>
-
-
-                <div class="ai-bubble">
-
-                    {{ answer }}
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="copy-btn"
-                    onclick="copyAnswer()"
-                >
-
-                    📋 Copy response
-
-                </button>
-
-
+                </h1>
+                <p>
+                    {% if mode == "rag" %}
+                        Ask questions and get answers from your knowledge base.
+                    {% else %}
+                        Have a conversation with your AI assistant.
+                    {% endif %}
+                </p>
             </div>
 
+            <div class="header-actions">
+                <div class="header-mode">
+                    {% if mode == "rag" %}
+                        📚 RAG MODE
+                    {% else %}
+                        💬 BASIC MODE
+                    {% endif %}
+                </div>
+                <button type="button" class="clear-btn" onclick="clearChat()">
+                    🗑️ Clear Chat
+                </button>
+            </div>
+        </header>
 
+        <!-- CHAT AREA -->
+        <section class="chat-area">
+
+            {% if not answer %}
+            <div class="welcome">
+                <div class="welcome-icon">✦</div>
+                <h2>
+                    {% if mode == "rag" %}
+                        Ask Your Knowledge Base
+                    {% else %}
+                        How can I help you?
+                    {% endif %}
+                </h2>
+                <p>
+                    {% if mode == "rag" %}
+                        Ask questions about the information stored in your knowledge base.
+                    {% else %}
+                        Start a conversation with your AI assistant.
+                    {% endif %}
+                </p>
+
+                <div class="suggestions">
+                    <button type="button" onclick="setQuestion('What is this knowledge base about?')">
+                        📚 Explore knowledge
+                    </button>
+                    <button type="button" onclick="setQuestion('Summarize the information')">
+                        ✨ Summarize content
+                    </button>
+                    <button type="button" onclick="setQuestion('Explain this topic simply')">
+                        💡 Explain simply
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if question and answer %}
+            <!-- USER QUESTION -->
+            <div class="message user-message">
+                <div class="message-body">
+                    <div class="sender user-sender">You</div>
+                    <div class="user-bubble">{{ question }}</div>
+                </div>
+                <div class="avatar user-avatar">You</div>
+            </div>
+
+            <!-- AI RESPONSE -->
+            <div class="message ai-message">
+                <div class="avatar ai-avatar">✦</div>
+                <div class="message-body">
+                    <div class="sender">
+                        {% if mode == "rag" %}
+                            RAG Assistant
+                        {% else %}
+                            AI Assistant
+                        {% endif %}
+                        <span class="badge">AI</span>
+                    </div>
+                    <div class="ai-bubble">{{ answer }}</div>
+                    <button type="button" class="copy-btn" onclick="copyAnswer()">
+                        📋 Copy response
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+        </section>
+
+        <!-- INPUT AREA -->
+        <div class="input-area">
+            <form action="/chat" method="post">
+                <input type="hidden" name="mode" value="{{ mode or 'basic' }}">
+                <div class="input-box">
+                    <textarea
+                        id="question"
+                        name="question"
+                        placeholder="{% if mode == 'rag' %}Ask something from your knowledge base...{% else %}Ask anything...{% endif %}"
+                        rows="1"
+                        required
+                    ></textarea>
+                    <button type="submit" class="send-button" title="Send message">➤</button>
+                </div>
+            </form>
+            <p class="footer-text">
+                AI-generated responses may contain mistakes. Verify important information.
+            </p>
         </div>
 
-
-
-        {% endif %}
-
-
-    </section>
-
-
-
-    <!-- =================================================
-         INPUT AREA
-    ================================================== -->
-
-    <div class="input-area">
-
-
-        <form
-            action="/chat"
-            method="post"
-        >
-
-
-            <!-- MODE -->
-
-            <input
-                type="hidden"
-                name="mode"
-                value="{{ mode or 'basic' }}"
-            >
-
-
-
-            <div class="input-box">
-
-
-                <!-- QUESTION -->
-
-                <textarea
-                    id="question"
-                    name="question"
-                    placeholder="{% if mode == 'rag' %}Ask something from your knowledge base...{% else %}Ask anything...{% endif %}"
-                    rows="1"
-                    required
-                ></textarea>
-
-
-
-                <!-- SEND -->
-
-                <button
-                    type="submit"
-                    class="send-button"
-                    title="Send message"
-                >
-
-                    ➤
-
-                </button>
-
-
-            </div>
-
-
-        </form>
-
-
-
-        <!-- FOOTER -->
-
-        <p class="footer-text">
-
-            AI-generated responses may contain mistakes.
-            Verify important information.
-
-        </p>
-
-
-    </div>
-
-
-</main>
-```
+    </main>
 
 </div>
 
-<!-- =====================================================
-     JAVASCRIPT
-====================================================== -->
-
 <script>
-
-
-/* =====================================================
-   SET SUGGESTION QUESTION
-===================================================== */
-
 function setQuestion(text) {
-
-    const input =
-        document.getElementById("question");
-
-
+    const input = document.getElementById("question");
     if (input) {
-
         input.value = text;
-
         input.focus();
-
-
         input.style.height = "auto";
-
-        input.style.height =
-            input.scrollHeight + "px";
-
+        input.style.height = input.scrollHeight + "px";
     }
-
 }
-
-
-
-/* =====================================================
-   CLEAR CHAT
-===================================================== */
 
 function clearChat() {
-
-    const currentMode =
-        "{{ mode or 'basic' }}";
-
-
-    /*
-       Keep the current mode.
-
-       Basic Chat  → /?mode=basic
-       RAG Chat    → /?mode=rag
-    */
-
-    if (currentMode === "rag") {
-
-        window.location.href =
-            "/?mode=rag";
-
-    }
-
-    else {
-
-        window.location.href =
-            "/";
-
-    }
-
+    const currentMode = "{{ mode or 'basic' }}";
+    window.location.href = currentMode === "rag" ? "/?mode=rag" : "/?mode=basic";
 }
-
-
-
-/* =====================================================
-   COPY AI RESPONSE
-===================================================== */
 
 function copyAnswer() {
+    const answer = document.querySelector(".ai-bubble");
+    if (!answer) return;
 
-    const answer =
-        document.querySelector(".ai-bubble");
-
-
-    if (!answer) {
-
-        return;
-
-    }
-
-
-    navigator.clipboard
-        .writeText(answer.innerText)
-        .then(function () {
-
-            const button =
-                document.querySelector(".copy-btn");
-
-
-            if (button) {
-
-                const oldText =
-                    button.innerText;
-
-
-                button.innerText =
-                    "✓ Copied";
-
-
-                setTimeout(function () {
-
-                    button.innerText =
-                        oldText;
-
-                }, 1500);
-
-            }
-
-        })
-        .catch(function () {
-
-            alert("Unable to copy response.");
-
-        });
-
-}
-
-
-
-/* =====================================================
-   AUTO RESIZE TEXTAREA
-===================================================== */
-
-const textarea =
-    document.getElementById("question");
-
-
-if (textarea) {
-
-
-    textarea.addEventListener(
-        "input",
-        function () {
-
-            this.style.height =
-                "auto";
-
-
-            this.style.height =
-                this.scrollHeight + "px";
-
+    navigator.clipboard.writeText(answer.innerText).then(function () {
+        const button = document.querySelector(".copy-btn");
+        if (button) {
+            const oldText = button.innerText;
+            button.innerText = "✓ Copied";
+            setTimeout(function () {
+                button.innerText = oldText;
+            }, 1500);
         }
-    );
-
-
+    }).catch(function () {
+        alert("Unable to copy response.");
+    });
 }
 
-
-
-/* =====================================================
-   ENTER TO SEND
-===================================================== */
-
+const textarea = document.getElementById("question");
 if (textarea) {
+    textarea.addEventListener("input", function () {
+        this.style.height = "auto";
+        this.style.height = this.scrollHeight + "px";
+    });
 
-
-    textarea.addEventListener(
-        "keydown",
-        function (event) {
-
-
-            if (
-                event.key === "Enter" &&
-                !event.shiftKey
-            ) {
-
-                event.preventDefault();
-
-
-                this.form.submit();
-
-            }
-
-
+    textarea.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            this.form.submit();
         }
-    );
-
-
+    });
 }
-
-
 </script>
 
 </body>
-
 </html>

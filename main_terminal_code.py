@@ -8,7 +8,7 @@ load_dotenv()
 # CONSTANTS & VARIABLES
 API_KEY = os.getenv("GROQ_API_KEY")
 MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
-KNOWLEDGE_FILE = "sample_docs/knowledge.txt"
+KNOWLEDGE_FILE = "sample.docs/knowledge.txt"
 
 
 def basic_chat():
