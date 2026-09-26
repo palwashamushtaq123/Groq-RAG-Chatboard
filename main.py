@@ -1,14 +1,13 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Form, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, Form
+from fastapi.middleware.cors import CORSMiddleware
 from groq import Groq
 
 load_dotenv()
 
-# CONSTANTS & VARIABLES
+# CONSTANTS
 API_KEY = os.getenv("GROQ_API_KEY")
 MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
 KNOWLEDGE_FILE = "sample.docs/knowledge.txt"
@@ -16,9 +15,14 @@ KNOWLEDGE_FILE = "sample.docs/knowledge.txt"
 # FASTAPI APP
 app = FastAPI()
 
-templates = Jinja2Templates(directory="templates")
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # BASIC CHAT
@@ -27,8 +31,14 @@ def basic_chat(question):
 
     response = client.chat.completions.create(
         messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": question},
+            {
+                "role": "system",
+                "content": "You are a helpful assistant."
+            },
+            {
+                "role": "user",
+                "content": question
+            },
         ],
         model=MODEL,
     )
@@ -60,28 +70,46 @@ def rag_chat(question):
     return response.choices[0].message.content
 
 
-# HOME PAGE
+# HEALTH CHECK
 @app.get("/")
-def home(request: Request, mode: str = "basic"):
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={"answer": None, "question": "", "mode": mode},
-    )
+def home():
+    return {
+        "status": "online",
+        "message": "RAG Chatboard API is running"
+    }
 
 
 # CHAT ENDPOINT
 @app.post("/chat")
 def chat(
-    request: Request, question: str = Form(...), mode: str = Form(...)
+    question: str = Form(...),
+    mode: str = Form(...)
 ):
-    if mode == "rag":
-        answer = rag_chat(question)
-    else:
-        answer = basic_chat(question)
+    question = question.strip()
 
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={"answer": answer, "question": question, "mode": mode},
-    )
+    if not question:
+        return {
+            "success": False,
+            "error": "Please enter a question."
+        }
+
+    try:
+        if mode == "rag":
+            answer = rag_chat(question)
+        else:
+            answer = basic_chat(question)
+
+        return {
+            "success": True,
+            "answer": answer,
+            "question": question,
+            "mode": mode
+        }
+
+    except Exception as e:
+        print(f"Chat error: {e}")
+
+        return {
+            "success": False,
+            "error": str(e)
+        }

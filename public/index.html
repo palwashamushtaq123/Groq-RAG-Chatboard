@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RAG Chatboard</title>
+
+    <link rel="stylesheet" href="static/style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">✦</div>
+
+            <div>
+                <h2>RAG Chatboard</h2>
+                <p>AI Knowledge Assistant</p>
+            </div>
+        </div>
+
+
+        <div class="sidebar-title">
+            CHAT MODES
+        </div>
+
+
+        <!-- BASIC CHAT -->
+
+        <a href="#" class="mode-card active" data-mode="basic">
+
+            <div class="mode-icon basic-icon">
+                💬
+            </div>
+
+            <div>
+                <strong>Basic Chat</strong>
+                <span>General AI conversation</span>
+            </div>
+
+        </a>
+
+
+        <!-- RAG CHAT -->
+
+        <a href="#" class="mode-card" data-mode="rag">
+
+            <div class="mode-icon rag-icon">
+                📚
+            </div>
+
+            <div>
+                <strong>RAG Chat</strong>
+                <span>Ask from your knowledge base</span>
+            </div>
+
+        </a>
+
+
+        <!-- KNOWLEDGE BASE -->
+
+        <div class="knowledge-card">
+
+            <div class="book-icon">
+                📖
+            </div>
+
+            <div>
+                <strong>Knowledge Base</strong>
+
+                <span>
+                    knowledge.txt
+                </span>
+
+                <small>
+                    ● Connected
+                </small>
+            </div>
+
+        </div>
+
+
+        <!-- SIDEBAR BOTTOM -->
+
+        <div class="sidebar-bottom">
+
+            <div class="groq-logo">
+                ⚡
+            </div>
+
+            <div>
+                <span>Powered by</span>
+                <strong>Groq</strong>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <!-- HEADER -->
+
+        <header class="header">
+
+            <div class="header-left">
+
+                <div class="online">
+                    <span></span>
+                    AI Assistant Online
+                </div>
+
+                <h1>
+                    AI Assistant
+                </h1>
+
+                <p>
+                    Have a conversation with your AI assistant.
+                </p>
+
+            </div>
+
+
+            <div class="header-actions">
+
+                <div class="header-mode">
+                    💬 BASIC MODE
+                </div>
+
+                <button
+                    type="button"
+                    class="clear-btn"
+                >
+                    🗑️ Clear Chat
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================= CHAT AREA ================= -->
+
+        <section class="chat-area" id="chatArea">
+
+
+            <!-- WELCOME -->
+
+            <div class="welcome">
+
+                <div class="welcome-icon">
+                    ✦
+                </div>
+
+                <h2>
+                    How can I help you?
+                </h2>
+
+                <p>
+                    Start a conversation with your AI assistant.
+                </p>
+
+
+                <div class="suggestions">
+
+                    <button
+                        type="button"
+                        class="suggestion-btn"
+                        data-question="What is this knowledge base about?"
+                    >
+                        📚 Explore knowledge
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="suggestion-btn"
+                        data-question="Summarize the information"
+                    >
+                        ✨ Summarize content
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="suggestion-btn"
+                        data-question="Explain this topic simply"
+                    >
+                        💡 Explain simply
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= INPUT ================= -->
+
+        <div class="input-area">
+
+            <form id="chatForm">
+
+                <div class="input-box">
+
+                    <textarea
+                        id="question"
+                        name="question"
+                        placeholder="Ask anything..."
+                        rows="1"
+                        required
+                    ></textarea>
+
+
+                    <button
+                        type="submit"
+                        class="send-button"
+                        title="Send message"
+                    >
+                        ➤
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <p class="footer-text">
+                AI-generated responses may contain mistakes.
+                Verify important information.
+            </p>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- JAVASCRIPT -->
+<!-- ================================================= -->
+
+<script>
+
+/* =========================================
+   VERCEL BACKEND
+========================================= */
+
+const API_URL = "https://rag-chatboard.vercel.app";
+
+
+/* =========================================
+   CURRENT MODE
+========================================= */
+
+let currentMode = "basic";
+
+
+/* =========================================
+   ELEMENTS
+========================================= */
+
+const form = document.getElementById("chatForm");
+
+const questionInput = document.getElementById("question");
+
+const chatArea = document.getElementById("chatArea");
+
+const modeCards = document.querySelectorAll(".mode-card");
+
+const headerMode = document.querySelector(".header-mode");
+
+const clearButton = document.querySelector(".clear-btn");
+
+const suggestionButtons =
+    document.querySelectorAll(".suggestion-btn");
+
+
+/* =========================================
+   MODE SWITCHING
+========================================= */
+
+modeCards.forEach(function(card) {
+
+    card.addEventListener("click", function(event) {
+
+        event.preventDefault();
+
+        modeCards.forEach(function(item) {
+            item.classList.remove("active");
+        });
+
+        card.classList.add("active");
+
+        currentMode = card.dataset.mode;
+
+
+        if (currentMode === "rag") {
+
+            headerMode.textContent = "📚 RAG MODE";
+
+        } else {
+
+            headerMode.textContent = "💬 BASIC MODE";
+
+        }
+
+    });
+
+});
+
+
+/* =========================================
+   SUGGESTION BUTTONS
+========================================= */
+
+suggestionButtons.forEach(function(button) {
+
+    button.addEventListener("click", function() {
+
+        questionInput.value =
+            button.dataset.question;
+
+        questionInput.focus();
+
+    });
+
+});
+
+
+/* =========================================
+   SEND MESSAGE
+========================================= */
+
+form.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+
+    const question =
+        questionInput.value.trim();
+
+
+    if (!question) {
+        return;
+    }
+
+
+    /* Show user message */
+
+    addUserMessage(question);
+
+
+    /* Clear input */
+
+    questionInput.value = "";
+
+
+    /* Show loading */
+
+    const loadingMessage =
+        addAIMessage("Thinking...");
+
+
+    try {
+
+        const formData = new FormData();
+
+        formData.append(
+            "question",
+            question
+        );
+
+        formData.append(
+            "mode",
+            currentMode
+        );
+
+
+        const response = await fetch(
+            `${API_URL}/chat`,
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+
+        const data =
+            await response.json();
+
+
+        /* Remove Thinking */
+
+        loadingMessage.remove();
+
+
+        /* Successful response */
+
+        if (data.success) {
+
+            addAIMessage(data.answer);
+
+        }
+
+        /* Backend error */
+
+        else {
+
+            addAIMessage(
+                "Error: " +
+                (data.error ||
+                "Something went wrong.")
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "API Error:",
+            error
+        );
+
+
+        loadingMessage.remove();
+
+
+        addAIMessage(
+            "Unable to connect to the AI server."
+        );
+
+    }
+
+});
+
+
+/* =========================================
+   USER MESSAGE
+========================================= */
+
+function addUserMessage(text) {
+
+    const message =
+        document.createElement("div");
+
+
+    message.className =
+        "message user-message";
+
+
+    message.innerHTML = `
+
+        <div class="message-body">
+
+            <div class="sender user-sender">
+                You
+            </div>
+
+            <div class="user-bubble">
+                ${escapeHtml(text)}
+            </div>
+
+        </div>
+
+
+        <div class="user-avatar">
+            YOU
+        </div>
+
+    `;
+
+
+    chatArea.appendChild(message);
+
+
+    scrollToBottom();
+
+}
+
+
+/* =========================================
+   AI MESSAGE
+========================================= */
+
+function addAIMessage(text) {
+
+    const message =
+        document.createElement("div");
+
+
+    message.className =
+        "message ai-message";
+
+
+    message.innerHTML = `
+
+        <div class="ai-avatar">
+            ✦
+        </div>
+
+
+        <div class="message-body">
+
+            <div class="sender">
+
+                AI Assistant
+
+                <span class="badge">
+                    AI
+                </span>
+
+            </div>
+
+
+            <div class="ai-bubble">
+
+                ${escapeHtml(text)}
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    chatArea.appendChild(message);
+
+
+    scrollToBottom();
+
+
+    return message;
+
+}
+
+
+/* =========================================
+   CLEAR CHAT
+========================================= */
+
+clearButton.addEventListener(
+    "click",
+    function() {
+
+        chatArea.innerHTML = `
+
+            <div class="welcome">
+
+                <div class="welcome-icon">
+                    ✦
+                </div>
+
+
+                <h2>
+                    How can I help you?
+                </h2>
+
+
+                <p>
+                    Start a conversation with
+                    your AI assistant.
+                </p>
+
+
+                <div class="suggestions">
+
+                    <button
+                        type="button"
+                        class="suggestion-btn"
+                        data-question="What is this knowledge base about?"
+                    >
+                        📚 Explore knowledge
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="suggestion-btn"
+                        data-question="Summarize the information"
+                    >
+                        ✨ Summarize content
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="suggestion-btn"
+                        data-question="Explain this topic simply"
+                    >
+                        💡 Explain simply
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        /* Reconnect suggestion buttons */
+
+        const newButtons =
+            document.querySelectorAll(
+                ".suggestion-btn"
+            );
+
+
+        newButtons.forEach(function(button) {
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    questionInput.value =
+                        button.dataset.question;
+
+                    questionInput.focus();
+
+                }
+            );
+
+        });
+
+    }
+);
+
+
+/* =========================================
+   ENTER KEY
+========================================= */
+
+questionInput.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Enter" &&
+            !event.shiftKey
+        ) {
+
+            event.preventDefault();
+
+            form.requestSubmit();
+
+        }
+
+    }
+);
+
+
+/* =========================================
+   SCROLL CHAT
+========================================= */
+
+function scrollToBottom() {
+
+    chatArea.scrollTop =
+        chatArea.scrollHeight;
+
+}
+
+
+/* =========================================
+   SECURITY
+========================================= */
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+}
+
+</script>
+
+</body>
+</html>

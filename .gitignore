@@ -1,8 +1,23 @@
+# Virtual Environments
 venv/
 .venv/
+env/
+ENV/
+
+# Environment Variables & Secrets
 .env
+.env.local
+
+# Python Cache
 __pycache__/
+*.py[cod]
+*$py.class
+
+# IDE / Editor Settings
 .vscode/
+.idea/
 
-
-
+# Deployment Builds & Logs
+.vercel/
+.firebase/
+*.log
